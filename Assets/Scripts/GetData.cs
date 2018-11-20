@@ -7,6 +7,8 @@ using UnityEngine.UI;
 
 public class GetData : MonoBehaviour {
 
+    public static event System.Action<Ticker> OnTickerChanged;
+
     [SerializeField] RawImage image;
 
     GraphInfo graphInfo;
@@ -35,6 +37,7 @@ public class GetData : MonoBehaviour {
         else
         {
             ticker = JsonConvert.DeserializeObject<Ticker>(www.downloadHandler.text);
+            OnTickerChanged?.Invoke(ticker);
         }
     }
 
