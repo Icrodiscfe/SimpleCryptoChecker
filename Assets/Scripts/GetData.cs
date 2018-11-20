@@ -7,23 +7,23 @@ using UnityEngine.UI;
 
 public class GetData : MonoBehaviour {
 
-    GraphInfo graphInfo;
     [SerializeField] RawImage image;
 
-    string url = "https://graphs2.coinmarketcap.com/currencies/bitcoin/1542700740000/1542708868000/";
+    GraphInfo graphInfo;
+    Ticker ticker;
 
-    // Use this for initialization
+    string urlText = "https://graphs2.coinmarketcap.com/currencies/bitcoin/1542700740000/1542708868000/";
+    string urlTicker = "https://api.coinmarketcap.com/v2/ticker/1/";
+    string urlTexture = "https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/1.png";
+    
     void Start () {
-        StartCoroutine(GetText());
-        StartCoroutine(GetTexture());
+        StartCoroutine(GetText(urlText));
+        StartCoroutine(GetTicker(urlTicker));
+        StartCoroutine(GetTexture(urlTexture));
     }
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
-    IEnumerator GetText()
+
+    IEnumerator GetTicker(string url)
     {
         UnityWebRequest www = UnityWebRequest.Get(url);
         yield return www.SendWebRequest();
@@ -34,19 +34,28 @@ public class GetData : MonoBehaviour {
         }
         else
         {
-            // Show results as text
-            Debug.Log(www.downloadHandler.text);
-            graphInfo = JsonConvert.DeserializeObject<GraphInfo>(www.downloadHandler.text);
-            Debug.Log(graphInfo);
-            // Or retrieve results as binary data
-
-            byte[] results = www.downloadHandler.data;
+            ticker = JsonConvert.DeserializeObject<Ticker>(www.downloadHandler.text);
         }
     }
 
-    IEnumerator GetTexture()
+    IEnumerator GetText(string url)
     {
-        UnityWebRequest www = UnityWebRequestTexture.GetTexture("https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/1.png");
+        UnityWebRequest www = UnityWebRequest.Get(url);
+        yield return www.SendWebRequest();
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            Debug.Log(www.error);
+        }
+        else
+        {
+            graphInfo = JsonConvert.DeserializeObject<GraphInfo>(www.downloadHandler.text);
+        }
+    }
+
+    IEnumerator GetTexture(string url)
+    {
+        UnityWebRequest www = UnityWebRequestTexture.GetTexture(url);
         yield return www.SendWebRequest();
 
         if (www.isNetworkError || www.isHttpError)
