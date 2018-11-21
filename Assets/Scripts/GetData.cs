@@ -7,21 +7,20 @@ using UnityEngine.UI;
 
 public class GetData : MonoBehaviour {
 
-    public static event System.Action<Ticker> OnTickerChanged;
+    public static event System.Action OnTickerUpdate;
 
-    [SerializeField] RawImage image;
+    [SerializeField] GameObject m_uiTickerPrefab;
+    [SerializeField] Transform m_uiTickerPrefabparent;
 
     GraphInfo graphInfo;
     Ticker ticker;
 
     string urlText = "https://graphs2.coinmarketcap.com/currencies/bitcoin/1542700740000/1542708868000/";
-    string urlTicker = "https://api.coinmarketcap.com/v2/ticker/1/";
-    string urlTexture = "https://s2.coinmarketcap.com/generated/sparklines/web/7d/usd/1.png";
+    string urlTicker = "https://api.coinmarketcap.com/v2/ticker/?limit=10&structure=array";
     
     void Start () {
         StartCoroutine(GetText(urlText));
         StartCoroutine(GetTicker(urlTicker));
-        StartCoroutine(GetTexture(urlTexture));
     }
 
 
@@ -37,7 +36,17 @@ public class GetData : MonoBehaviour {
         else
         {
             ticker = JsonConvert.DeserializeObject<Ticker>(www.downloadHandler.text);
-            OnTickerChanged?.Invoke(ticker);
+
+            foreach (var item in ticker.data)
+            {
+                var obj = Instantiate(m_uiTickerPrefab, m_uiTickerPrefabparent);
+                obj.SetActive(true);
+                var ui = obj.GetComponent<UiTicker>();
+                ui.Data = item;
+                ui.Initialize();
+            }
+
+            OnTickerUpdate?.Invoke();
         }
     }
 
@@ -56,19 +65,5 @@ public class GetData : MonoBehaviour {
         }
     }
 
-    IEnumerator GetTexture(string url)
-    {
-        UnityWebRequest www = UnityWebRequestTexture.GetTexture(url);
-        yield return www.SendWebRequest();
 
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            image.texture = ((DownloadHandlerTexture)www.downloadHandler).texture;
-            image.SetNativeSize();
-        }
-    }
 }
