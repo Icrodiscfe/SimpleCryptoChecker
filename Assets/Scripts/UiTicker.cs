@@ -20,6 +20,7 @@ public class UiTicker : MonoBehaviour {
     [SerializeField] TMP_Text m_percent_change_7d;
     [SerializeField] TMP_InputField m_inputField;
     [SerializeField] TMP_Text m_inputFieldPlaceholder;
+    [SerializeField] TMP_Text m_CurrenzyName;
 
 
     private void OnEnable()
@@ -71,6 +72,9 @@ public class UiTicker : MonoBehaviour {
         var percent_change_7d = Data.quotes.USD.percent_change_7d;
         m_percent_change_7d.text = percent_change_7d.ToString("N") + " %";
         m_percent_change_7d.color = percent_change_7d > 0 ? m_colorPositive : m_colorNegative;
+
+        var name = Data.name;
+        m_CurrenzyName.text = name;
     }
 
     private void OnInputFieldEndEdit(string text)
